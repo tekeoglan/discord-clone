@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: app
+    container_name: discord-server
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "$PORT:$PORT"
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=$DB_USER
+      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASSWORD
+    ports:
+      - "$DB_PORT:$DB_PORT"

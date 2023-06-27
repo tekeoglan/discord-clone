@@ -1,17 +1,16 @@
 package main
 
 import (
-	"net/http"
+	"github/tekeoglan/discord-clone/bootstrap"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run()
+	app := bootstrap.App()
+	defer app.CloseDBConnection()
+
+	gin := gin.Default()
+
+	gin.Run()
 }
