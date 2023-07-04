@@ -1,10 +1,29 @@
+GENERIC := $(wordlist 2,$(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+$(eval $(GENERIC):;@:)
+
+file = docker/docker-compose.dev.yaml
+ifeq (${CONTEXT}, production)
+		file = docker/docker-compose.yaml
+endif
+
+project = discord-clone
+cc = docker compose -p $(project) -f $(file)
+ex = docker exec -it discord-server
+
+.PHONY: *
+.DEFAULT_GOAL := detach
+
+build:
+		$(cc) build $(GENERIC)
 up:
-		docker compose up --build
+		$(cc) up $(GENERIC)
+detach:
+		$(cc) up -d $(GENERIC)
 down:
-		docker compose down
-build-dev-db:
-		docker build -t discord-mongo mongo
-run-dev-db:
-		docker run -d --name discord-mongo-container -p 27017:27017 discord-mongo
-dev:
-		go run cmd/main.go
+		$(cc) down $(GENERIC)
+run:
+		make build && make up
+stop:
+		$(cc) stop $(GENERIC)
+console:
+		$(ex) /bin/sh

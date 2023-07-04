@@ -1,0 +1,19 @@
+# syntax = docker/dockerfile:1
+
+FROM golang:1.19-alpine AS base
+WORKDIR /app
+COPY ../go.* .
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+FROM base AS build
+RUN --mount=type=bind,source=..,target=. \
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux go build -o /bin/discord-clone ./cmd
+
+FROM alpine:latest
+COPY ../conf/dev.env /etc/discord-clone/
+COPY --from=build /bin/discord-clone /bin/
+EXPOSE 8080
+ENTRYPOINT ["/bin/discord-clone"]
