@@ -23,3 +23,9 @@ func (rs *registerService) Create(c context.Context, user *model.User) error {
 	defer cancel()
 	return rs.userRepository.Create(ctx, user)
 }
+
+func (rs *registerService) GetUserByEmail(c context.Context, email string) (model.User, error) {
+	ctx, cancel := context.WithTimeout(c, rs.contextTimeout)
+	defer cancel()
+	return rs.userRepository.GetByEmail(ctx, email)
+}
