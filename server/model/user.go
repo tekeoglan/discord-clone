@@ -2,6 +2,8 @@ package model
 
 import "context"
 
+const CollectionUser = "users"
+
 type User struct {
 	BaseModel
 	UserName string `bson:"userName"`
@@ -13,4 +15,5 @@ type User struct {
 type UserRepository interface {
 	Create(c context.Context, user *User) error
 	GetByID(c context.Context, id string) (User, error)
+	GetByEmail(c context.Context, email string) (User, error)
 }

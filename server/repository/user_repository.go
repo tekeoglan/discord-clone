@@ -29,6 +29,13 @@ func (ur *userRepository) Create(c context.Context, user *model.User) error {
 	return err
 }
 
+func (ur *userRepository) GetByEmail(c context.Context, email string) (model.User, error) {
+	collection := ur.database.Collection(ur.collection)
+	var user model.User
+	err := collection.FindOne(c, bson.M{"email": email}).Decode(&user)
+	return user, err
+}
+
 func (ur *userRepository) GetByID(c context.Context, id string) (model.User, error) {
 	collection := ur.database.Collection(ur.collection)
 
