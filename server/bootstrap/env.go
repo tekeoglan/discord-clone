@@ -1,9 +1,9 @@
 package bootstrap
 
 import (
-	"log"
-
 	"github.com/spf13/viper"
+	"log"
+	"os"
 )
 
 type Env struct {
@@ -18,12 +18,18 @@ type Env struct {
 }
 
 func NewEnv() *Env {
+	file := "dev.env"
+	if os.Getenv("ENV") == "production" {
+		file = ".env"
+	}
+
 	env := Env{}
-	viper.SetConfigFile(".env")
+
+	viper.SetConfigFile("/etc/discord-clone/" + file)
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatal("Can't find the file .env: ", err)
+		log.Fatal("Can't find the env file:", err)
 	}
 
 	err = viper.Unmarshal(&env)
