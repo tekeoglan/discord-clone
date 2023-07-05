@@ -26,8 +26,8 @@ func (rc *RegisterController) Register(c *gin.Context) {
 	}
 
 	_, err = rc.RegisterService.GetUserByEmail(c, request.Email)
-	if err != nil {
-		c.JSON(http.StatusConflict, model.ErrorResponse{Message: "User already exist with this given email."})
+	if err == nil {
+		c.JSON(http.StatusConflict, model.ErrorResponse{Message: "User already exist with given email."})
 		return
 	}
 
