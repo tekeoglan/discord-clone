@@ -23,6 +23,10 @@ down:
 		$(cc) down $(GENERIC)
 run:
 		make build && make up
+debug:
+		export BUILD_TARGET=debug && make run
+dev:
+		export BUILD_TARGET=dev && make run
 stop:
 		$(cc) stop $(GENERIC)
 console:

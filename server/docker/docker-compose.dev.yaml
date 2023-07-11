@@ -5,11 +5,15 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.dev
+      target: ${BUILD_TARGET}
     image: discord-server
     container_name: discord-server
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - 8080:8080
+      - 2345:2345
+    security_opt:
+      - "seccomp:unconfined"
     depends_on:
       - mongodb
   mongodb:
