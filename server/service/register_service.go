@@ -3,29 +3,22 @@ package service
 import (
 	"context"
 	"github/tekeoglan/discord-clone/model"
-	"time"
 )
 
 type registerService struct {
 	userRepository model.UserRepository
-	contextTimeout time.Duration
 }
 
-func NewRegisterService(userRepository model.UserRepository, timeout time.Duration) model.RegisterService {
+func NewRegisterService(userRepository model.UserRepository) model.RegisterService {
 	return &registerService{
 		userRepository: userRepository,
-		contextTimeout: timeout,
 	}
 }
 
 func (rs *registerService) Create(c context.Context, user *model.User) error {
-	ctx, cancel := context.WithTimeout(c, rs.contextTimeout)
-	defer cancel()
-	return rs.userRepository.Create(ctx, user)
+	return rs.userRepository.Create(c, user)
 }
 
 func (rs *registerService) GetUserByEmail(c context.Context, email string) (model.User, error) {
-	ctx, cancel := context.WithTimeout(c, rs.contextTimeout)
-	defer cancel()
-	return rs.userRepository.GetByEmail(ctx, email)
+	return rs.userRepository.GetByEmail(c, email)
 }

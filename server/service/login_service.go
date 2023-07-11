@@ -19,7 +19,5 @@ func NewLoginService(userRepository model.UserRepository, timeout time.Duration)
 }
 
 func (ls *loginService) GetUserByEmail(c context.Context, email string) (model.User, error) {
-	ctx, cancel := context.WithTimeout(c, ls.contextTimeout)
-	defer cancel()
-	return ls.userRepository.GetByEmail(ctx, email)
+	return ls.userRepository.GetByEmail(c, email)
 }

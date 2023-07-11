@@ -15,8 +15,9 @@ import (
 func NewRegisterRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, group *gin.RouterGroup) {
 	ur := repository.NewUserRepository(db, model.CollectionUser)
 	rc := controller.RegisterController{
-		RegisterService: service.NewRegisterService(ur, timeout),
+		RegisterService: service.NewRegisterService(ur),
 		Env:             env,
 	}
+
 	group.POST("/register", rc.Register)
 }
