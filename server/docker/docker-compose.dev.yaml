@@ -16,6 +16,7 @@ services:
       - "seccomp:unconfined"
     depends_on:
       - mongodb
+      - redis_cache
   mongodb:
     image: mongo
     container_name: mongodb
@@ -24,6 +25,15 @@ services:
       - "27017:27017"
     volumes:
       - dbdata:/data/db
-
+  redis_cache:
+    image: redis:6.2-alpine
+    hostname: redis
+    container_name: redis_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - cache:/data/redis_cache
 volumes:
   dbdata:
+  cache:

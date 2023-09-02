@@ -15,6 +15,10 @@ type Env struct {
 	DBUser         string `mapstructure:"DB_USER"`
 	DBPassword     string `mapstructure:"DB_PASSWORD"`
 	DBName         string `mapstructure:"DB_NAME"`
+	CacheHost      string `mapstructure:"CACHE_HOST"`
+	CachePort      string `mapstructure:"CACHE_PORT"`
+	CacheUser      string `mapstructure:"CACHE_USER"`
+	CachePass      string `mapstructure:"CACHE_PASSWORD"`
 }
 
 func NewEnv() *Env {
