@@ -54,9 +54,11 @@ type Client interface {
 type mongoClient struct {
 	cl *mongo.Client
 }
+
 type mongoDatabase struct {
 	db *mongo.Database
 }
+
 type mongoCollection struct {
 	coll *mongo.Collection
 }

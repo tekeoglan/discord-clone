@@ -18,7 +18,6 @@ func NewMongoDatabase(env *Env) mongo.Client {
 	dbPassword := env.DBPassword
 
 	mongodbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s", dbUser, dbPassword, dbHost, dbPort)
-	fmt.Printf("uri:%s\n", mongodbURI)
 
 	if dbUser == "" || dbPassword == "" {
 		mongodbURI = fmt.Sprintf("mongodb://%s:%s", dbHost, dbPort)
