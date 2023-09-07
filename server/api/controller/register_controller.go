@@ -1,19 +1,14 @@
 package controller
 
 import (
-	"github/tekeoglan/discord-clone/bootstrap"
 	"github/tekeoglan/discord-clone/model"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterController struct {
-	RegisterService model.RegisterService
-	Env             *bootstrap.Env
+	AccountService model.AccountService
 }
 
 func (rc *RegisterController) Register(c *gin.Context) {
@@ -25,33 +20,20 @@ func (rc *RegisterController) Register(c *gin.Context) {
 		return
 	}
 
-	_, err = rc.RegisterService.GetUserByEmail(c, request.Email)
-	if err == nil {
-		c.JSON(http.StatusConflict, model.ErrorResponse{Message: "User already exist with given email."})
+	isExist := rc.AccountService.IsEmailExist(c, request.Email)
+	if isExist {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "User already exist with given email."})
 		return
 	}
 
-	encryptPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	request.Password = string(encryptPassword)
-
-	user := model.User{
-		BaseModel: model.BaseModel{
-			ID:        primitive.NewObjectID(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+	user := &model.User{
 		UserName: request.UserName,
 		Email:    request.Email,
 		Password: request.Password,
 		Image:    "",
 	}
 
-	err = rc.RegisterService.Create(c, &user)
+	err = rc.AccountService.Register(c, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return

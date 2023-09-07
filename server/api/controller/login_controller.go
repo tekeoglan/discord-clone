@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github/tekeoglan/discord-clone/bootstrap"
 	"github/tekeoglan/discord-clone/model"
 	"net/http"
 
@@ -10,8 +9,8 @@ import (
 )
 
 type LoginController struct {
-	LoginService model.LoginService
-	Env          *bootstrap.Env
+	AccountService model.AccountService
+	SessionService model.SessionService
 }
 
 func (lc *LoginController) Login(c *gin.Context) {
@@ -23,15 +22,21 @@ func (lc *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := lc.LoginService.GetUserByEmail(c, request.Email)
+	var user model.User
+	user, err = lc.AccountService.GetByEmail(c, request.Email)
 	if err != nil {
 		c.JSON(http.StatusNotFound, model.ErrorResponse{Message: "User not found with given email."})
 		return
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
-		c.JSON(http.StatusUnauthorized, model.ErrorResponse{Message: "Incalid Credantials"})
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, model.ErrorResponse{Message: "Invalid Credantials"})
 		return
 	}
 
+	var sessionId string
+	sessionId, err = lc.SessionService.CreateSession(c, user.ID.String())
+
+	c.SetCookie("session_id", sessionId, 24*60*60, "/", "localhost", false, true)
 }
