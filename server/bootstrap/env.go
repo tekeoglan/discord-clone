@@ -1,9 +1,10 @@
 package bootstrap
 
 import (
-	"github.com/spf13/viper"
 	"log"
 	"os"
+
+	"github.com/spf13/viper"
 )
 
 type Env struct {
