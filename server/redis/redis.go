@@ -11,7 +11,7 @@ type Client interface {
 	Ping(context.Context) (string, error)
 	Get(context.Context, string) *redis.StringCmd
 	Set(context.Context, string, interface{}, time.Duration) *redis.StatusCmd
-	ClientKill(context.Context, string) *redis.StatusCmd
+	Close() error
 }
 
 func NewClient(opt Options) Client {
@@ -49,6 +49,6 @@ func (rc *redisClient) Get(ctx context.Context, key string) *redis.StringCmd {
 	return rc.cl.Get(ctx, key)
 }
 
-func (rc *redisClient) ClientKill(ctx context.Context, ipPort string) *redis.StatusCmd {
-	return rc.cl.ClientKill(ctx, ipPort)
+func (rc *redisClient) Close() error {
+	return rc.cl.Close()
 }

@@ -43,9 +43,8 @@ func KillCacheClient(env *Env, client redis.Client) {
 		return
 	}
 
-	addr := fmt.Sprintf("%s:%s", env.CacheHost, env.CachePort)
-	val := client.ClientKill(context.TODO(), addr)
-	if err := val.Err(); err != nil {
+	err := client.Close()
+	if err != nil {
 		log.Fatal(err)
 	}
 
