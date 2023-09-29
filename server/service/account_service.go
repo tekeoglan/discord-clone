@@ -3,9 +3,7 @@ package service
 import (
 	"context"
 	"github/tekeoglan/discord-clone/model"
-	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,11 +28,6 @@ func (as *accountService) Register(c context.Context, user *model.User) error {
 	}
 
 	user.Password = string(encryptPassword)
-	user.BaseModel = model.BaseModel{
-		ID:        primitive.NewObjectID(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
 
 	return as.userRepository.Create(c, user)
 }

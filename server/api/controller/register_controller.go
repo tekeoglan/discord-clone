@@ -3,8 +3,10 @@ package controller
 import (
 	"github/tekeoglan/discord-clone/model"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type RegisterController struct {
@@ -27,6 +29,11 @@ func (rc *RegisterController) Register(c *gin.Context) {
 	}
 
 	user := &model.User{
+		BaseModel: model.BaseModel{
+			ID:        primitive.NewObjectID(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
 		UserName: request.UserName,
 		Email:    request.Email,
 		Password: request.Password,

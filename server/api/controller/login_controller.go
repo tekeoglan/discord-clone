@@ -37,7 +37,7 @@ func (lc *LoginController) Login(c *gin.Context) {
 	}
 
 	var sessionId string
-	sessionId, err = lc.SessionService.CreateSession(c, user.ID.String())
+	sessionId, err = lc.SessionService.CreateSession(c, user.ID.Hex())
 
 	c.SetCookie(service.COOKIE_PREFIX, sessionId, lc.SessionService.GetCokiExpr(),
 		lc.SessionService.GetCokiPath(), lc.SessionService.GetCokiDomain(),
