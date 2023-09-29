@@ -21,9 +21,10 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database,
 	publicRouter := gin.Group("")
 	publicRouter.Use(middleware.Timeout(timeout))
 
-	userRouter := gin.Group("/channels")
-	userRouter.Use(middleware.Auth(ss))
+	friendRouter := gin.Group("/friend")
+	friendRouter.Use(middleware.Auth(ss))
 
 	NewRegisterRouter(db, rc, publicRouter)
 	NewLoginRoute(db, rc, publicRouter)
+	NewFriendRoute(db, rc, friendRouter)
 }
