@@ -5,11 +5,11 @@ import "context"
 const CollectionUser = "users"
 
 type User struct {
-	BaseModel
-	UserName string `bson:"userName"`
-	Email    string `bson:"email"`
-	Password string `bson:"password"`
-	Image    string `bson:"image, omitempty"`
+	BaseModel `bson:",inline"`
+	UserName  string `bson:"userName"`
+	Email     string `bson:"email"`
+	Password  string `bson:"password"`
+	Image     string `bson:"image, omitempty"`
 }
 
 type UserRepository interface {

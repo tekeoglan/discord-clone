@@ -13,9 +13,9 @@ const (
 )
 
 type Friend struct {
-	BaseModel
-	Users  []primitive.ObjectID `bson:"users"`
-	Status string               `bson:"status"`
+	BaseModel `bson:",inline"`
+	Users     []primitive.ObjectID `bson:"users"`
+	Status    string               `bson:"status"`
 }
 
 type FriendRequest struct {
