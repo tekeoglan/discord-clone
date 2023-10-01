@@ -26,4 +26,7 @@ func NewFriendRoute(db mongo.Database, cl redis.Client, group *gin.RouterGroup) 
 	}
 
 	group.POST("/add", fc.AddFriend)
+	group.GET("/getConfirmed", fc.GetConfirmedFriends)
+	group.GET("/getPending", fc.GetPendingFriends)
+	group.POST("/remove", fc.RemoveFriend)
 }

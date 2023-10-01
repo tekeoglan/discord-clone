@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"fmt"
 	"github/tekeoglan/discord-clone/model"
 	"github/tekeoglan/discord-clone/service"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +42,6 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 	var senderId primitive.ObjectID
 	senderId, err = primitive.ObjectIDFromHex(senderHex)
 	if err != nil {
-		fmt.Println("senderHex: " + senderHex)
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
 	}
@@ -69,13 +68,94 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
 	}
+
+	c.JSON(http.StatusOK, "Friend is created")
 }
 
 func (fc *FriendController) GetConfirmedFriends(c *gin.Context) {
+	sessionId, err := c.Cookie(service.COOKIE_PREFIX)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	var userIdHex string
+	userIdHex, err = fc.SessionService.RetriveSession(c, sessionId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	cursorPosString := c.Query("cursorPos")
+	if cursorPosString == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "Invalid query value"})
+		return
+	}
+
+	var cursorPos int
+	cursorPos, err = strconv.Atoi(cursorPosString)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	confirmed, err := fc.FriendService.GetConfirmed(c, userIdHex, cursorPos)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, confirmed)
 }
 
 func (fc *FriendController) GetPendingFriends(c *gin.Context) {
+	sessionId, err := c.Cookie(service.COOKIE_PREFIX)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	var userIdHex string
+	userIdHex, err = fc.SessionService.RetriveSession(c, sessionId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	cursorPosString := c.Query("cursorPos")
+	if cursorPosString == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "Invalid query value"})
+		return
+	}
+
+	var cursorPos int
+	cursorPos, err = strconv.Atoi(cursorPosString)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	pending, err := fc.FriendService.GetPending(c, userIdHex, cursorPos)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, pending)
 }
 
 func (fc *FriendController) RemoveFriend(c *gin.Context) {
+	id := c.Query("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "Invalid query value."})
+		return
+	}
+
+	err := fc.FriendService.Remove(c, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, "Friend is removed.")
 }

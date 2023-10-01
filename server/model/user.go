@@ -8,7 +8,7 @@ type User struct {
 	BaseModel `bson:",inline"`
 	UserName  string `bson:"userName"`
 	Email     string `bson:"email"`
-	Password  string `bson:"password"`
+	Password  string `bson:"password" json:"-"`
 	Image     string `bson:"image, omitempty"`
 }
 

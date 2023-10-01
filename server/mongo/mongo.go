@@ -14,6 +14,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+var (
+	ErrNoDoc = mongo.ErrNoDocuments
+)
+
 type Database interface {
 	Collection(string) Collection
 	Client() Client
