@@ -3,8 +3,10 @@ module github/tekeoglan/discord-clone
 go 1.19
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.1.2
+	github.com/gorilla/websocket v1.5.0
 	github.com/redis/go-redis/v9 v9.1.0
 	github.com/spf13/viper v1.16.0
 	go.mongodb.org/mongo-driver v1.12.0
