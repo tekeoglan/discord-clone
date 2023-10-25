@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github/tekeoglan/discord-clone/model"
-	"github/tekeoglan/discord-clone/service"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +14,7 @@ type FriendController struct {
 	FriendService  model.FriendService
 	SessionService model.SessionService
 	AccountService model.AccountService
+	SocketService  model.SocketService
 }
 
 func (fc *FriendController) AddFriend(c *gin.Context) {
@@ -26,7 +26,7 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 	}
 
 	var sessionId string
-	sessionId, err = c.Cookie(service.COOKIE_PREFIX)
+	sessionId, err = c.Cookie(model.COOKIE_PREFIX_SESSION)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
@@ -41,6 +41,13 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 
 	var senderId primitive.ObjectID
 	senderId, err = primitive.ObjectIDFromHex(senderHex)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	var sender model.User
+	sender, err = fc.AccountService.FetchUser(c, senderHex)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
@@ -69,11 +76,50 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 		return
 	}
 
+	fc.SocketService.EmitAddFriendRequest(receiver.ID.Hex(), &model.FriendRequestWs{
+		Id:       sender.ID.Hex(),
+		UserName: sender.UserName,
+		Image:    sender.Image,
+		Type:     model.Incoming,
+	})
+
 	c.JSON(http.StatusOK, "Friend is created")
 }
 
+func (fc *FriendController) AcceptFriendRequest(c *gin.Context) {
+	sessionId, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	var userIdHex string
+	userIdHex, err = fc.SessionService.RetriveSession(c, sessionId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	friendId := c.Param("friendId")
+	if friendId == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "Invalid param value"})
+		return
+	}
+
+	var friendResult model.FriendGetResult
+	friendResult, err = fc.FriendService.AcceptFriend(c, userIdHex, friendId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	fc.SocketService.EmitAddFriend(&friendResult.FriendInfos[0], &friendResult.FriendInfos[1])
+
+	c.JSON(http.StatusOK, "Friend is accepted")
+}
+
 func (fc *FriendController) GetConfirmedFriends(c *gin.Context) {
-	sessionId, err := c.Cookie(service.COOKIE_PREFIX)
+	sessionId, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
@@ -109,7 +155,7 @@ func (fc *FriendController) GetConfirmedFriends(c *gin.Context) {
 }
 
 func (fc *FriendController) GetPendingFriends(c *gin.Context) {
-	sessionId, err := c.Cookie(service.COOKIE_PREFIX)
+	sessionId, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
@@ -151,11 +197,19 @@ func (fc *FriendController) RemoveFriend(c *gin.Context) {
 		return
 	}
 
-	err := fc.FriendService.Remove(c, id)
+	friend, err := fc.FriendService.GetFriend(c, id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = fc.FriendService.Remove(c, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
 	}
+
+	fc.SocketService.EmitRemoveFriend(friend.Users[0].Hex(), friend.Users[1].Hex())
 
 	c.JSON(http.StatusOK, "Friend is removed.")
 }

@@ -12,24 +12,47 @@ const (
 	Pending          = "pending"
 )
 
-type FriendResult struct {
-	BaseModel  `bson:",inline"`
-	FriendInfo User   `bson:"friendInfo"`
-	Status     string `bson:"status"`
-}
-
 type Friend struct {
 	BaseModel `bson:",inline"`
 	Users     []primitive.ObjectID `bson:"users"`
 	Status    string               `bson:"status"`
 }
 
+type FriendGetResult struct {
+	BaseModel   `bson:",inline"`
+	Users       []primitive.ObjectID `bson:"users"`
+	FriendInfos []User               `bson:"friendInfos"`
+	Status      string               `bson:"status"`
+}
+
+type FriendResult struct {
+	BaseModel  `bson:",inline"`
+	FriendInfo User   `bson:"friendInfo"`
+	Status     string `bson:"status"`
+}
+
 type FriendRequest struct {
-	Email string `bson:"email"`
+	Email string `json:"email"`
+}
+
+type RequestType int
+
+const (
+	Outgoing RequestType = iota
+	Incoming
+)
+
+type FriendRequestWs struct {
+	Id       string      `json:"id"`
+	UserName string      `json:"userName"`
+	Image    string      `json:"image"`
+	Type     RequestType `json:"type" enums:"0,1"`
 }
 
 type FriendRepository interface {
 	Add(context.Context, *Friend) error
+	Update(context.Context, string, interface{}) error
+	Get(context.Context, string) (FriendGetResult, error)
 	GetConfirmed(context.Context, string, int) ([]FriendResult, error)
 	GetPending(context.Context, string, int) ([]FriendResult, error)
 	Remove(context.Context, string) error
@@ -38,6 +61,8 @@ type FriendRepository interface {
 
 type FriendService interface {
 	Add(context.Context, *Friend) error
+	AcceptFriend(context.Context, string, string) (FriendGetResult, error)
+	GetFriend(context.Context, string) (FriendGetResult, error)
 	GetConfirmed(context.Context, string, int) ([]FriendResult, error)
 	GetPending(context.Context, string, int) ([]FriendResult, error)
 	Remove(context.Context, string) error

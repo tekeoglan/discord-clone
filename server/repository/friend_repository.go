@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const CURSOR_LENGTH = 20
+const friendCursorLength = 20
 
 type friendRepository struct {
 	database   mongo.Database
@@ -28,6 +28,56 @@ func (fr *friendRepository) Add(c context.Context, friend *model.Friend) error {
 	_, err := collection.InsertOne(c, friend)
 
 	return err
+}
+
+func (fr *friendRepository) Update(c context.Context, id string, update interface{}) error {
+	collection := fr.database.Collection(fr.collection)
+
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": objId}, update)
+
+	return err
+}
+
+func (fr *friendRepository) Get(c context.Context, id string) (model.FriendGetResult, error) {
+	collection := fr.database.Collection(fr.collection)
+
+	var friend model.FriendGetResult
+
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return friend, err
+	}
+
+	pipe := bson.A{
+		bson.M{
+			"$match": bson.M{
+				"_id": objId,
+			},
+		},
+		bson.M{
+			"$lookup": bson.M{
+				"from":         "users",
+				"localField":   "users",
+				"foreignField": "_id",
+				"as":           "friendInfos",
+			},
+		},
+	}
+
+	var cursor mongo.Cursor
+	cursor, err = collection.Aggregate(c, pipe)
+	defer cursor.Close(c)
+
+	for cursor.Next(c) {
+		err = cursor.Decode(&friend)
+	}
+
+	return friend, err
 }
 
 func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos int) ([]model.FriendResult, error) {
@@ -57,7 +107,7 @@ func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos
 			"$skip": cursorPos,
 		},
 		bson.M{
-			"$limit": cursorPos + CURSOR_LENGTH,
+			"$limit": cursorPos + friendCursorLength,
 		},
 		bson.M{
 			"$lookup": bson.M{
@@ -85,12 +135,13 @@ func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos
 		},
 		bson.M{
 			"$set": bson.M{
-				"cursorPos": cursorPos + CURSOR_LENGTH,
+				"cursorPos": cursorPos + friendCursorLength,
 			},
 		},
 	}
 
 	cursor, err := collection.Aggregate(c, pipe)
+	defer cursor.Close(c)
 	if err != nil {
 		return result, err
 	}
@@ -131,7 +182,7 @@ func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos i
 			"$skip": cursorPos,
 		},
 		bson.M{
-			"$limit": cursorPos + CURSOR_LENGTH,
+			"$limit": cursorPos + friendCursorLength,
 		},
 		bson.M{
 			"$lookup": bson.M{
@@ -159,7 +210,7 @@ func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos i
 		},
 		bson.M{
 			"$set": bson.M{
-				"cursorPos": cursorPos + CURSOR_LENGTH,
+				"cursorPos": cursorPos + friendCursorLength,
 			},
 		},
 	}

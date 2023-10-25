@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"github/tekeoglan/discord-clone/model"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type friendService struct {
@@ -27,6 +30,27 @@ func (fs *friendService) Add(c context.Context, friend *model.Friend) error {
 	}
 
 	return fs.friendRepository.Add(c, friend)
+}
+
+func (fs *friendService) AcceptFriend(c context.Context, userId string, friendId string) (model.FriendGetResult, error) {
+	friend, err := fs.friendRepository.Get(c, friendId)
+	if err != nil {
+		return friend, err
+	}
+
+	if friend.Users[0].Hex() == userId {
+		return friend, errors.New("cannot accept the friend request created by yourself")
+	}
+
+	update := bson.M{"$set": bson.M{"updatedAt": time.Now(), "status": model.Confirmed}}
+
+	err = fs.friendRepository.Update(c, friendId, update)
+
+	return friend, err
+}
+
+func (fs *friendService) GetFriend(c context.Context, id string) (model.FriendGetResult, error) {
+	return fs.friendRepository.Get(c, id)
 }
 
 func (fs *friendService) GetConfirmed(c context.Context, id string, cursorPos int) ([]model.FriendResult, error) {
