@@ -40,3 +40,7 @@ func (as *accountService) IsEmailExist(c context.Context, email string) bool {
 	_, err := as.userRepository.GetByEmail(c, email)
 	return err == nil
 }
+
+func (as *accountService) FetchUser(c context.Context, id string) (model.User, error) {
+	return as.userRepository.GetByID(c, id)
+}
