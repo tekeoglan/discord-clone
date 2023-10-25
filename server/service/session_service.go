@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 	"fmt"
-	"github/tekeoglan/discord-clone/model"
 	"os"
 	"time"
 
 	"github.com/google/uuid"
+
+	"github/tekeoglan/discord-clone/model"
 )
 
-const SESSION_PREFIX = "session"
-const COOKIE_PREFIX = "session_id"
+const sessionPrefix = "session"
 
 var config *sessionConfig
 
@@ -54,7 +54,7 @@ func NewSessionService(cacheRepository model.CacheRepository) model.SessionServi
 
 func (ss *sessionService) CreateSession(c context.Context, userId string) (string, error) {
 	uuid := uuid.New().String()
-	key := fmt.Sprintf("%s:%s", SESSION_PREFIX, uuid)
+	key := fmt.Sprintf("%s:%s", sessionPrefix, uuid)
 
 	err := ss.cacheRepository.Set(c, key, userId, ss.sessionExpiration)
 	if err != nil {

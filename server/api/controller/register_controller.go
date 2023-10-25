@@ -16,7 +16,7 @@ type RegisterController struct {
 func (rc *RegisterController) Register(c *gin.Context) {
 	var request model.RegisterRequest
 
-	err := c.ShouldBind(&request)
+	err := c.Bind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
 		return

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github/tekeoglan/discord-clone/model"
-	"github/tekeoglan/discord-clone/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +16,7 @@ type LoginController struct {
 func (lc *LoginController) Login(c *gin.Context) {
 	var request model.LoginRequest
 
-	err := c.ShouldBind(&request)
+	err := c.Bind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
 		return
@@ -39,7 +38,27 @@ func (lc *LoginController) Login(c *gin.Context) {
 	var sessionId string
 	sessionId, err = lc.SessionService.CreateSession(c, user.ID.Hex())
 
-	c.SetCookie(service.COOKIE_PREFIX, sessionId, lc.SessionService.GetCokiExpr(),
+	c.SetCookie(model.COOKIE_PREFIX_SESSION, sessionId, lc.SessionService.GetCokiExpr(),
 		lc.SessionService.GetCokiPath(), lc.SessionService.GetCokiDomain(),
 		lc.SessionService.IsCokiSecure(), lc.SessionService.IsCokiHttpOnly())
+}
+
+func (lc *LoginController) FetchUser(c *gin.Context) {
+	session, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "invalid session"})
+		return
+	}
+
+	var userId string
+	userId, err = lc.SessionService.RetriveSession(c, session)
+
+	var user model.User
+	user, err = lc.AccountService.FetchUser(c, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }

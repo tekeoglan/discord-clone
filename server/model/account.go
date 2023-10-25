@@ -18,4 +18,5 @@ type AccountService interface {
 	Register(c context.Context, user *User) error
 	GetByEmail(c context.Context, email string) (User, error)
 	IsEmailExist(c context.Context, email string) bool
+	FetchUser(c context.Context, id string) (User, error)
 }

@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const COOKIE_PREFIX_SESSION = "session_id"
+
 type SessionService interface {
 	CreateSession(c context.Context, userId string) (string, error)
 	RetriveSession(c context.Context, sessionId string) (string, error)
