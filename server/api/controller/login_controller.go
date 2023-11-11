@@ -37,6 +37,10 @@ func (lc *LoginController) Login(c *gin.Context) {
 
 	var sessionId string
 	sessionId, err = lc.SessionService.CreateSession(c, user.ID.Hex())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
 
 	c.SetCookie(model.COOKIE_PREFIX_SESSION, sessionId, lc.SessionService.GetCokiExpr(),
 		lc.SessionService.GetCokiPath(), lc.SessionService.GetCokiDomain(),
@@ -44,14 +48,18 @@ func (lc *LoginController) Login(c *gin.Context) {
 }
 
 func (lc *LoginController) FetchUser(c *gin.Context) {
-	session, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
+	cookie, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "invalid session"})
 		return
 	}
 
 	var userId string
-	userId, err = lc.SessionService.RetriveSession(c, session)
+	userId, err = lc.SessionService.RetriveSession(c, cookie)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
 
 	var user model.User
 	user, err = lc.AccountService.FetchUser(c, userId)
