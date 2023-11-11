@@ -9,6 +9,7 @@ import (
 	"github/tekeoglan/discord-clone/service"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,8 +19,15 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database,
 	cr := repository.NewCacheRepository(rc)
 	ss := service.NewSessionService(cr)
 
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{env.ClientAddress}
+	corsConfig.AllowCredentials = true
+	corsConfig.ExposeHeaders = []string{"Set-Cookie"}
+
+	gin.Use(middleware.Timeout(timeout))
+	gin.Use(cors.New(corsConfig))
+
 	publicRouter := gin.Group("")
-	publicRouter.Use(middleware.Timeout(timeout))
 
 	wsRouter := gin.Group("/ws")
 	wsRouter.Use(middleware.Auth(ss))

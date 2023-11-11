@@ -32,15 +32,14 @@ type sessionService struct {
 func NewSessionService(cacheRepository model.CacheRepository) model.SessionService {
 	config = &sessionConfig{
 		cookieExpr:  24 * 60 * 60,
-		path:        "/",
 		domain:      "localhost",
+		path:        "/",
 		secure:      false,
-		httpOnly:    true,
+		httpOnly:    false,
 		sessionExpr: time.Hour * 24,
 	}
 
 	if os.Getenv("ENV") == "production" {
-		config.path = "/me"
 		config.domain = "discord-clone.com"
 		config.secure = true
 		config.httpOnly = false
