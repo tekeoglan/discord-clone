@@ -15,7 +15,6 @@ type RegisterController struct {
 
 func (rc *RegisterController) Register(c *gin.Context) {
 	var request model.RegisterRequest
-
 	err := c.Bind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
@@ -24,7 +23,7 @@ func (rc *RegisterController) Register(c *gin.Context) {
 
 	isExist := rc.AccountService.IsEmailExist(c, request.Email)
 	if isExist {
-		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "User already exist with given email."})
+		c.JSON(http.StatusConflict, model.ErrorResponse{Message: "User already exist with given email."})
 		return
 	}
 

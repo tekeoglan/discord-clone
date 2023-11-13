@@ -15,7 +15,6 @@ type LoginController struct {
 
 func (lc *LoginController) Login(c *gin.Context) {
 	var request model.LoginRequest
-
 	err := c.Bind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
@@ -45,6 +44,8 @@ func (lc *LoginController) Login(c *gin.Context) {
 	c.SetCookie(model.COOKIE_PREFIX_SESSION, sessionId, lc.SessionService.GetCokiExpr(),
 		lc.SessionService.GetCokiPath(), lc.SessionService.GetCokiDomain(),
 		lc.SessionService.IsCokiSecure(), lc.SessionService.IsCokiHttpOnly())
+
+	c.JSON(http.StatusOK, "User Loged In")
 }
 
 func (lc *LoginController) FetchUser(c *gin.Context) {
