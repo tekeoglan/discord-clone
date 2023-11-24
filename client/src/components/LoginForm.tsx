@@ -49,7 +49,7 @@ export default function LoginForm() {
 
     setValid(true);
     setFetching(false);
-    router.replace("/");
+    router.replace("/channels/me");
   };
 
   const registerHandler: MouseEventHandler<HTMLButtonElement> = () => {

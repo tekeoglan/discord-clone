@@ -4,8 +4,6 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen min-w-screen items-center justify-center">
-      {children}
-    </div>
+    <div className="h-screen flex items-center justify-center ">{children}</div>
   );
 }
