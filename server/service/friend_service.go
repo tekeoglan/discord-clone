@@ -53,11 +53,11 @@ func (fs *friendService) GetFriend(c context.Context, id string) (model.FriendGe
 	return fs.friendRepository.Get(c, id)
 }
 
-func (fs *friendService) GetConfirmed(c context.Context, id string, cursorPos int) ([]model.FriendResult, error) {
+func (fs *friendService) GetConfirmed(c context.Context, id string, cursorPos int) (model.FriendGetAllResult, error) {
 	return fs.friendRepository.GetConfirmed(c, id, cursorPos)
 }
 
-func (fs *friendService) GetPending(c context.Context, id string, cursorPos int) ([]model.FriendResult, error) {
+func (fs *friendService) GetPending(c context.Context, id string, cursorPos int) (model.FriendGetAllResult, error) {
 	return fs.friendRepository.GetPending(c, id, cursorPos)
 }
 

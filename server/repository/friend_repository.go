@@ -80,10 +80,11 @@ func (fr *friendRepository) Get(c context.Context, id string) (model.FriendGetRe
 	return friend, err
 }
 
-func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos int) ([]model.FriendResult, error) {
+func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos int) (model.FriendGetAllResult, error) {
 	collection := fr.database.Collection(fr.collection)
 
-	var result []model.FriendResult
+	var friends []model.FriendAggragateResult
+	var result model.FriendGetAllResult
 
 	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -107,7 +108,7 @@ func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos
 			"$skip": cursorPos,
 		},
 		bson.M{
-			"$limit": cursorPos + friendCursorLength,
+			"$limit": friendCursorLength,
 		},
 		bson.M{
 			"$lookup": bson.M{
@@ -133,11 +134,6 @@ func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos
 				"friendInfo.password": 0,
 			},
 		},
-		bson.M{
-			"$set": bson.M{
-				"cursorPos": cursorPos + friendCursorLength,
-			},
-		},
 	}
 
 	cursor, err := collection.Aggregate(c, pipe)
@@ -146,19 +142,19 @@ func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos
 		return result, err
 	}
 
-	var friend model.FriendResult
-	for cursor.Next(c) {
-		err = cursor.Decode(&friend)
-		result = append(result, friend)
-	}
+	err = cursor.All(c, &friends)
+
+	result.Friends = friends
+	result.CursorPos = cursorPos + friendCursorLength
 
 	return result, err
 }
 
-func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos int) ([]model.FriendResult, error) {
+func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos int) (model.FriendGetAllResult, error) {
 	collection := fr.database.Collection(fr.collection)
 
-	var result []model.FriendResult
+	var friends []model.FriendAggragateResult
+	var result model.FriendGetAllResult
 
 	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -182,7 +178,7 @@ func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos i
 			"$skip": cursorPos,
 		},
 		bson.M{
-			"$limit": cursorPos + friendCursorLength,
+			"$limit": friendCursorLength,
 		},
 		bson.M{
 			"$lookup": bson.M{
@@ -208,11 +204,6 @@ func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos i
 				"friendInfo.password": 0,
 			},
 		},
-		bson.M{
-			"$set": bson.M{
-				"cursorPos": cursorPos + friendCursorLength,
-			},
-		},
 	}
 
 	cursor, err := collection.Aggregate(c, pipe)
@@ -221,11 +212,10 @@ func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos i
 		return result, err
 	}
 
-	var friend model.FriendResult
-	for cursor.Next(c) {
-		err = cursor.Decode(&friend)
-		result = append(result, friend)
-	}
+	err = cursor.All(c, &friends)
+
+	result.Friends = friends
+	result.CursorPos = cursorPos + friendCursorLength
 
 	return result, err
 }
