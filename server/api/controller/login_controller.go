@@ -45,7 +45,7 @@ func (lc *LoginController) Login(c *gin.Context) {
 		lc.SessionService.GetCokiPath(), lc.SessionService.GetCokiDomain(),
 		lc.SessionService.IsCokiSecure(), lc.SessionService.IsCokiHttpOnly())
 
-	c.JSON(http.StatusOK, "User Loged In")
+	c.JSON(http.StatusOK, user)
 }
 
 func (lc *LoginController) FetchUser(c *gin.Context) {

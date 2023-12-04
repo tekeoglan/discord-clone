@@ -49,7 +49,7 @@ func (mc *MessageController) PostMessage(c *gin.Context) {
 
 func (mc *MessageController) UpdateMessage(c *gin.Context) {
 	var request model.UpdateMessageRequest
-	err := c.ShouldBind(&request)
+	err := c.Bind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
 		return

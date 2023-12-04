@@ -3,9 +3,9 @@ package model
 import "context"
 
 type ReceivedMessage struct {
-	Action  string       `json:"action"`
-	Room    string       `json:"room"`
-	Message *interface{} `json:"message"`
+	Action  string      `json:"action"`
+	Room    string      `json:"room"`
+	Message interface{} `json:"message,omitempty"`
 }
 
 type WebsocketMessage struct {

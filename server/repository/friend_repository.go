@@ -166,7 +166,7 @@ func (fr *friendRepository) GetPending(c context.Context, id string, cursorPos i
 			"$match": bson.M{
 				"$and": bson.A{
 					bson.M{
-						"users": _id,
+						"users.1": _id,
 					},
 					bson.M{
 						"status": "pending",

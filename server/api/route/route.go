@@ -23,13 +23,14 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database,
 	corsConfig.AllowOrigins = []string{env.ClientAddress}
 	corsConfig.AllowCredentials = true
 
-	gin.Use(middleware.Timeout(timeout))
 	gin.Use(cors.New(corsConfig))
-
-	publicRouter := gin.Group("")
 
 	wsRouter := gin.Group("/ws")
 	wsRouter.Use(middleware.Auth(ss))
+
+	gin.Use(middleware.Timeout(timeout))
+
+	publicRouter := gin.Group("")
 
 	friendRouter := gin.Group("/friend")
 	friendRouter.Use(middleware.Auth(ss))

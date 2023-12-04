@@ -37,7 +37,7 @@ type FriendGetAllResult struct {
 }
 
 type FriendRequest struct {
-	Email string `json:"email"`
+	Email string `form:"email" binding:"required"`
 }
 
 type RequestType int
