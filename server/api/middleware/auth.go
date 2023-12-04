@@ -23,6 +23,8 @@ func Auth(ss model.SessionService) gin.HandlerFunc {
 			return
 		}
 
+		c.Set(model.CONTEXT_USER_KEY, val)
+
 		c.Next()
 	}
 }

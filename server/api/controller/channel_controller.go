@@ -14,18 +14,7 @@ type ChannelController struct {
 }
 
 func (cc *ChannelController) CreateFc(c *gin.Context) {
-	session, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	var userId string
-	userId, err = cc.SessionService.RetriveSession(c, session)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	userId := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	friendId := c.Query("friendId")
 	if friendId == "" {
@@ -68,18 +57,7 @@ func (cc *ChannelController) GetFcById(c *gin.Context) {
 }
 
 func (cc *ChannelController) GetFcByUserIds(c *gin.Context) {
-	session, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	var userId string
-	userId, err = cc.SessionService.RetriveSession(c, session)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	userId := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	friendId := c.Query("friendId")
 	if friendId == "" {
@@ -97,18 +75,8 @@ func (cc *ChannelController) GetFcByUserIds(c *gin.Context) {
 }
 
 func (cc *ChannelController) GetFcs(c *gin.Context) {
-	session, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
 
-	var userId string
-	userId, err = cc.SessionService.RetriveSession(c, session)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	userId := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	channels, err := cc.ChannelService.GetFriendChannels(c, userId)
 	if err != nil {

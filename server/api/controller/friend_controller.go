@@ -19,25 +19,13 @@ type FriendController struct {
 
 func (fc *FriendController) AddFriend(c *gin.Context) {
 	var request model.FriendRequest
-	err := c.ShouldBind(&request)
+	err := c.Bind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	var sessionId string
-	sessionId, err = c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	var senderHex string
-	senderHex, err = fc.SessionService.RetriveSession(c, sessionId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	senderHex := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	var senderId primitive.ObjectID
 	senderId, err = primitive.ObjectIDFromHex(senderHex)
@@ -87,18 +75,7 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 }
 
 func (fc *FriendController) AcceptFriendRequest(c *gin.Context) {
-	sessionId, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	var userIdHex string
-	userIdHex, err = fc.SessionService.RetriveSession(c, sessionId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	userIdHex := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	friendId := c.Param("friendId")
 	if friendId == "" {
@@ -106,8 +83,7 @@ func (fc *FriendController) AcceptFriendRequest(c *gin.Context) {
 		return
 	}
 
-	var friendResult model.FriendGetResult
-	friendResult, err = fc.FriendService.AcceptFriend(c, userIdHex, friendId)
+	friendResult, err := fc.FriendService.AcceptFriend(c, userIdHex, friendId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
@@ -119,18 +95,7 @@ func (fc *FriendController) AcceptFriendRequest(c *gin.Context) {
 }
 
 func (fc *FriendController) GetConfirmedFriends(c *gin.Context) {
-	sessionId, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	var userIdHex string
-	userIdHex, err = fc.SessionService.RetriveSession(c, sessionId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	userIdHex := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	cursorPosString := c.Query("cursorPos")
 	if cursorPosString == "" {
@@ -138,8 +103,7 @@ func (fc *FriendController) GetConfirmedFriends(c *gin.Context) {
 		return
 	}
 
-	var cursorPos int
-	cursorPos, err = strconv.Atoi(cursorPosString)
+	cursorPos, err := strconv.Atoi(cursorPosString)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
@@ -155,18 +119,7 @@ func (fc *FriendController) GetConfirmedFriends(c *gin.Context) {
 }
 
 func (fc *FriendController) GetPendingFriends(c *gin.Context) {
-	sessionId, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	var userIdHex string
-	userIdHex, err = fc.SessionService.RetriveSession(c, sessionId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
-		return
-	}
+	userIdHex := c.MustGet(model.CONTEXT_USER_KEY).(string)
 
 	cursorPosString := c.Query("cursorPos")
 	if cursorPosString == "" {
@@ -174,8 +127,7 @@ func (fc *FriendController) GetPendingFriends(c *gin.Context) {
 		return
 	}
 
-	var cursorPos int
-	cursorPos, err = strconv.Atoi(cursorPosString)
+	cursorPos, err := strconv.Atoi(cursorPosString)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return

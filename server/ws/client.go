@@ -122,21 +122,9 @@ func (client *Client) disconnect() {
 }
 
 func ServeWs(hub *Hub, ctx *gin.Context) {
-	session, err := ctx.Cookie(model.COOKIE_PREFIX_SESSION)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	userId := ctx.MustGet(model.CONTEXT_USER_KEY).(string)
 
-	var userId string
-	userId, err = hub.sessionService.RetriveSession(ctx, session)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	var conn *websocket.Conn
-	conn, err = upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -155,6 +143,8 @@ func (client *Client) handleNewMessage(jsonMessage []byte) {
 	if err := json.Unmarshal(jsonMessage, &message); err != nil {
 		log.Printf("Error on unmurshal JSON message (%s)", err.Error())
 	}
+
+	log.Printf("new message received (%v)", message)
 
 	switch message.Action {
 	case JoinUserAction:
