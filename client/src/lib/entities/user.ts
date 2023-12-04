@@ -6,3 +6,5 @@ export type UserEntity = {
   Password: string;
   Image: string;
 } & BaseEntity;
+
+export type UserMeta = Omit<UserEntity, "Password">;
