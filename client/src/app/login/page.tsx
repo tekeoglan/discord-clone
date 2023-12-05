@@ -1,31 +1,46 @@
 "use client";
 
+import Loading from "@/components/common/Loading";
 import LoginForm from "@/components/LoginForm";
 import { endpoints } from "@/lib/api";
+import { userStore } from "@/lib/stores/userStore";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+type LoginState = "initial" | "loading" | "loaded";
 
 export default function Login() {
   const router = useRouter();
+  const setUser = userStore((state) => state.setUser);
+
+  const [state, setState] = useState<LoginState>("initial");
 
   useEffect(() => {
-    const init = async () => {
-      const response = await fetch(endpoints.FetchUser, {
-        method: "GET",
-        credentials: "include",
-        mode: "cors",
-      });
+    if (state != "initial") return;
+    setState("loading");
 
-      if (response.ok) {
-        router.replace("/channels/me");
+    const init = async () => {
+      try {
+        const response = await fetch(endpoints.FetchUser, {
+          credentials: "include",
+          mode: "cors",
+          cache: "no-store",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+          return router.replace("/channels/me");
+        } else {
+          setState("loaded");
+        }
+      } catch (e) {
+        console.log(e);
+        setState("loaded");
       }
     };
     init();
-  }, []);
+  }, [state]);
 
-  return (
-    <main>
-      <LoginForm />
-    </main>
-  );
+  return <main>{state === "loaded" ? <LoginForm /> : <Loading />}</main>;
 }

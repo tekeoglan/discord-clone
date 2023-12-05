@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import { MouseEventHandler, FormEventHandler, useState } from "react";
 import { z } from "zod";
 import { endpoints } from "@/lib/api";
+import { userStore } from "@/lib/stores/userStore";
 
 export default function LoginForm() {
   const router = useRouter();
+  const setUser = userStore((state) => state.setUser);
 
   const [valid, setValid] = useState(true);
   const [fetching, setFetching] = useState(false);
@@ -22,6 +24,7 @@ export default function LoginForm() {
     e.preventDefault();
 
     if (fetching) return;
+    setFetching(true);
 
     const entries = new FormData(e.target as HTMLFormElement);
     const loginData = Object.fromEntries(entries);
@@ -29,27 +32,32 @@ export default function LoginForm() {
     const res = formSchema.safeParse(loginData);
     if (!res.success) {
       setValid(false);
-      return;
-    }
-
-    setFetching(true);
-    const response = await fetch(endpoints.Login, {
-      method: "POST",
-      credentials: "include",
-      mode: "cors",
-      cache: "no-store",
-      body: entries,
-    });
-
-    if (!response.ok) {
-      setValid(false);
       setFetching(false);
       return;
     }
 
-    setValid(true);
-    setFetching(false);
-    router.replace("/channels/me");
+    try {
+      const response = await fetch(endpoints.Login, {
+        method: "POST",
+        credentials: "include",
+        mode: "cors",
+        cache: "no-store",
+        body: entries,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+        return router.replace("/channels/me");
+      } else {
+        setValid(false);
+        setFetching(false);
+      }
+    } catch (e) {
+      console.log(e);
+      setValid(true);
+      setFetching(false);
+    }
   };
 
   const registerHandler: MouseEventHandler<HTMLButtonElement> = () => {
