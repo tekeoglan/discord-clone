@@ -1,6 +1,7 @@
 export const endpoints = {
   WebSocket: `${process.env.NEXT_PUBLIC_WS_PATH}`,
   Login: `${process.env.NEXT_PUBLIC_API_BASE_PATH}/login`,
+  Logout: `${process.env.NEXT_PUBLIC_API_BASE_PATH}/logout`,
   Register: `${process.env.NEXT_PUBLIC_API_BASE_PATH}/register`,
   FetchUser: `${process.env.NEXT_PUBLIC_API_BASE_PATH}/fetchUser`,
   GetFriendChannels: `${process.env.NEXT_PUBLIC_API_BASE_PATH}/channel/fc/user`,
