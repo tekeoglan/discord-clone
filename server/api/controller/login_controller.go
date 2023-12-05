@@ -48,6 +48,18 @@ func (lc *LoginController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+func (lc *LoginController) LogOut(c *gin.Context) {
+	cookie, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
+
+	err = lc.SessionService.RemoveSession(c, cookie)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, "user loged out")
+}
+
 func (lc *LoginController) FetchUser(c *gin.Context) {
 	cookie, err := c.Cookie(model.COOKIE_PREFIX_SESSION)
 	if err != nil {

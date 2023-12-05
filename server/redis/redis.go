@@ -11,6 +11,7 @@ type Client interface {
 	Ping(context.Context) (string, error)
 	Get(context.Context, string) *redis.StringCmd
 	Set(context.Context, string, interface{}, time.Duration) *redis.StatusCmd
+	Del(context.Context, ...string) *redis.IntCmd
 	Publish(context.Context, string, interface{}) *redis.IntCmd
 	Subscribe(context.Context, ...string) *redis.PubSub
 	Close() error
@@ -49,6 +50,10 @@ func (rc *redisClient) Set(ctx context.Context, key string, val interface{}, exp
 
 func (rc *redisClient) Get(ctx context.Context, key string) *redis.StringCmd {
 	return rc.cl.Get(ctx, key)
+}
+
+func (rc *redisClient) Del(ctx context.Context, key ...string) *redis.IntCmd {
+	return rc.cl.Del(ctx, key...)
 }
 
 func (rc *redisClient) Close() error {

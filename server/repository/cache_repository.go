@@ -26,3 +26,8 @@ func (cr *cacheRepository) Get(c context.Context, key string) (string, error) {
 	cmd := cr.client.Get(c, key)
 	return cmd.Result()
 }
+
+func (cr *cacheRepository) Delete(c context.Context, key ...string) (int64, error) {
+	cmd := cr.client.Del(c, key...)
+	return cmd.Result()
+}

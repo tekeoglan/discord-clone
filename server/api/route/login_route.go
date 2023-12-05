@@ -24,5 +24,6 @@ func NewLoginRoute(db mongo.Database,
 	}
 
 	group.POST("/login", lr.Login)
+	group.POST("/logout", lr.LogOut)
 	group.GET("/fetchUser", lr.FetchUser)
 }

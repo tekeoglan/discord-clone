@@ -67,6 +67,11 @@ func (ss *sessionService) RetriveSession(c context.Context, sessionId string) (s
 	return ss.cacheRepository.Get(c, sessionId)
 }
 
+func (ss *sessionService) RemoveSession(c context.Context, sessionId string) error {
+	_, err := ss.cacheRepository.Delete(c, sessionId)
+	return err
+}
+
 func (ss *sessionService) GetCokiPath() string {
 	return config.path
 }
