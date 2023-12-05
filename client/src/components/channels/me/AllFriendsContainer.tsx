@@ -41,6 +41,7 @@ export default function AllFriendsContainer() {
           console.log("add_friend:", response.data);
           setNewFriends((prev) => [response.data, ...prev]);
           break;
+
         case "remove_friend":
           console.log("remove_friend:", response.data);
           setNewFriends((prev) =>
@@ -56,8 +57,8 @@ export default function AllFriendsContainer() {
                 }
               : prev
           );
-
           break;
+
         default:
           break;
       }
@@ -108,8 +109,8 @@ export default function AllFriendsContainer() {
               ? newFriends.map((item) => (
                   <ConfirmedFriendItem
                     key={item.ID}
-                    data-item-visible={true}
                     userName={item.UserName}
+                    userId={item.ID}
                   />
                 ))
               : null}
@@ -118,8 +119,8 @@ export default function AllFriendsContainer() {
             {friends?.Friends?.map((item) => (
               <ConfirmedFriendItem
                 key={item.ID}
-                data-item-visible={true}
                 userName={item.FriendInfo.UserName}
+                userId={item.FriendInfo.ID}
               />
             ))}
           </div>

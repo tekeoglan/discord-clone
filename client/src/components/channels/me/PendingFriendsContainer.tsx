@@ -40,7 +40,7 @@ export default function PendingFriendsContainer() {
 
       switch (response.action) {
         case WebsocketAction.AddRequestAction:
-          console.log("add_friend:", response.data);
+          console.log("add_request:", response.data);
           setNewFriendRequests((prev) => [response.data, ...prev]);
           break;
         case WebsocketAction.RemoveFriendAction:

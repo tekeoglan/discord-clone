@@ -18,9 +18,9 @@ export type WebsocketResponse = {
 
 export type WsFriendRequestResponse = {
   id: string;
+  userId: string;
   userName: string;
   image: string;
-  type: 0 | 1;
 };
 
 export const enum WebsocketAction {

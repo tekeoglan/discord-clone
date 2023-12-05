@@ -80,6 +80,31 @@ func (fr *friendRepository) Get(c context.Context, id string) (model.FriendGetRe
 	return friend, err
 }
 
+func (fr *friendRepository) GetByUserIds(c context.Context, user1 string, user2 string) (model.Friend, error) {
+	collection := fr.database.Collection(fr.collection)
+
+	var result model.Friend
+
+	user1ObjId, err := primitive.ObjectIDFromHex(user1)
+	if err != nil {
+		return result, err
+	}
+
+	var user2ObjId primitive.ObjectID
+	user2ObjId, err = primitive.ObjectIDFromHex(user2)
+	if err != nil {
+		return result, err
+	}
+
+	err = collection.FindOne(c, bson.M{
+		"users": bson.M{
+			"$all": bson.A{user1ObjId, user2ObjId},
+		},
+	}).Decode(&result)
+
+	return result, err
+}
+
 func (fr *friendRepository) GetConfirmed(c context.Context, id string, cursorPos int) (model.FriendGetAllResult, error) {
 	collection := fr.database.Collection(fr.collection)
 

@@ -40,24 +40,18 @@ type FriendRequest struct {
 	Email string `form:"email" binding:"required"`
 }
 
-type RequestType int
-
-const (
-	Outgoing RequestType = iota
-	Incoming
-)
-
 type FriendRequestWs struct {
-	Id       string      `json:"id"`
-	UserName string      `json:"userName"`
-	Image    string      `json:"image"`
-	Type     RequestType `json:"type" enums:"0,1"`
+	Id       string `json:"id"`
+	UserId   string `json:"userId"`
+	UserName string `json:"userName"`
+	Image    string `json:"image"`
 }
 
 type FriendRepository interface {
 	Add(context.Context, *Friend) error
 	Update(context.Context, string, interface{}) error
 	Get(context.Context, string) (FriendGetResult, error)
+	GetByUserIds(context.Context, string, string) (Friend, error)
 	GetConfirmed(context.Context, string, int) (FriendGetAllResult, error)
 	GetPending(context.Context, string, int) (FriendGetAllResult, error)
 	Remove(context.Context, string) error
@@ -71,4 +65,5 @@ type FriendService interface {
 	GetConfirmed(context.Context, string, int) (FriendGetAllResult, error)
 	GetPending(context.Context, string, int) (FriendGetAllResult, error)
 	Remove(context.Context, string) error
+	RemoveByUserIds(context.Context, string, string) error
 }

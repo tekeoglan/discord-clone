@@ -13,4 +13,6 @@ export const endpoints = {
     `${process.env.NEXT_PUBLIC_API_BASE_PATH}/friend/confirm/${friendId}`,
   DeclineFriendRequest: (friendId: string) =>
     `${process.env.NEXT_PUBLIC_API_BASE_PATH}/friend/remove?id=${friendId}`,
+  RemoveFriend: (userId: string) =>
+    `${process.env.NEXT_PUBLIC_API_BASE_PATH}/friend/removeByUserIds?userId=${userId}`,
 };

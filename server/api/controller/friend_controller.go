@@ -65,10 +65,10 @@ func (fc *FriendController) AddFriend(c *gin.Context) {
 	}
 
 	fc.SocketService.EmitAddFriendRequest(receiver.ID.Hex(), &model.FriendRequestWs{
-		Id:       sender.ID.Hex(),
+		Id:       friend.ID.Hex(),
+		UserId:   sender.ID.Hex(),
 		UserName: sender.UserName,
 		Image:    sender.Image,
-		Type:     model.Incoming,
 	})
 
 	c.JSON(http.StatusOK, "Friend is created")
@@ -140,6 +140,26 @@ func (fc *FriendController) GetPendingFriends(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, pending)
+}
+
+func (fc *FriendController) RemoveByUserIds(c *gin.Context) {
+	requesterId := c.MustGet(model.CONTEXT_USER_KEY).(string)
+
+	userId := c.Query("userId")
+	if userId == "" {
+		c.JSON(http.StatusBadRequest, model.ErrorResponse{Message: "Invalid query value."})
+		return
+	}
+
+	err := fc.FriendService.RemoveByUserIds(c, requesterId, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	fc.SocketService.EmitRemoveFriend(requesterId, userId)
+
+	c.JSON(http.StatusOK, "Friend is removed.")
 }
 
 func (fc *FriendController) RemoveFriend(c *gin.Context) {

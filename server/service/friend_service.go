@@ -61,6 +61,15 @@ func (fs *friendService) GetPending(c context.Context, id string, cursorPos int)
 	return fs.friendRepository.GetPending(c, id, cursorPos)
 }
 
+func (fs *friendService) RemoveByUserIds(c context.Context, requesterId, userId string) error {
+	friend, err := fs.friendRepository.GetByUserIds(c, requesterId, userId)
+	if err != nil {
+		return err
+	}
+
+	return fs.friendRepository.Remove(c, friend.ID.Hex())
+}
+
 func (fs *friendService) Remove(c context.Context, id string) error {
 	return fs.friendRepository.Remove(c, id)
 }
