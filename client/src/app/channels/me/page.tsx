@@ -10,7 +10,7 @@ export default function Me() {
   const [friendState, setFriendState] = useState<FriendState>(FriendState.ALL);
 
   return (
-    <main className="flex flex-col">
+    <main className="flex flex-col h-full">
       <FriendsHeader setState={setFriendState} />
       <FriendsContainer friendState={friendState} />
     </main>

@@ -99,11 +99,11 @@ export default function PendingFriendsContainer() {
   return (
     <div className="flex flex-col grow shrink overflow-hidden">
       <div className="flex items-center justify-between">
-        <h2 className="mt-4 mr-5 mb-2 ml-[30px] box-border text-ellipsis whitespace-nowrap uppercase overflow-hidden font-semibold font-xs grow shrink">
-          {`pending friends -- ${friends?.Friends?.length ?? 0}`}
+        <h2 className="mt-4 mr-5 mb-2 ml-[30px] box-border text-ellipsis whitespace-nowrap uppercase overflow-hidden font-semibold text-neutral-300 grow shrink">
+          {`pending friends - ${friends?.Friends?.length ?? 0}`}
         </h2>
       </div>
-      <div className="pb-2 mt-2 overflow-x-hidden overflow-y-scroll box-border grow shrink">
+      <div className="pb-2 mt-2 overflow-x-hidden overflow-y-auto box-border grow shrink">
         <div>
           {newFriendRequests.length > 0
             ? newFriendRequests.map((item) => (

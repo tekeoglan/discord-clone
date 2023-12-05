@@ -9,7 +9,7 @@ export default function FriendsContainer({
   friendState: FriendState;
 }) {
   return (
-    <div className="flex h-full  max-w-[720px] overflow-hidden">
+    <div className="flex grow max-w-[720px] overflow-hidden">
       {friendState === FriendState.ALL ? <AllFriendsContainer /> : null}
       {friendState === FriendState.PENDING ? <PendingFriendsContainer /> : null}
       {friendState === FriendState.ADDING ? <AddFriendsContainer /> : null}

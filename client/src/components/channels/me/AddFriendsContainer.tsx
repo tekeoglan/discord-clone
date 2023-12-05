@@ -51,23 +51,25 @@ export default function AddFriendsContainer() {
           Add Friend
         </h2>
         <form autoComplete="off" onSubmit={sendFrienRequest}>
-          <div className="font-normal text-sm">
+          <div className="font-normal text-sm text-neutral-300">
             You can add friends with their Email address.
           </div>
           <div className="relative flex items-center mt-4 px-3 bg-neutral-900 rounded-lg border-solid border border-neutral-900 hover:border-blue-500 focus-within:border-blue-500">
             <div className="py-1 mr-4 grow shrink whitespace-pre box-border z-10">
               <input
-                className="p-0 h-10 w-full box-border bg-inherit rounded outline-none"
+                className="p-0 h-10 w-full box-border bg-inherit text-white rounded outline-none"
                 name="email"
                 maxLength={99}
               ></input>
             </div>
             <button
-              className="relative h-8 min-w-15 min-h-8 flex items-center justify-center box-border bg-blue-600 rounded font-normal text-sm py-[2px] px-4 select-none"
+              className="relative h-8 min-w-15 min-h-8 flex items-center justify-center box-border bg-blue-600 rounded py-[2px] px-4 select-none"
               style={{ cursor: fetching ? "wait" : "pointer" }}
               type="submit"
             >
-              <div>Sen Friend Request</div>
+              <div className="font-normal text-sm text-white">
+                Sen Friend Request
+              </div>
             </button>
           </div>
         </form>

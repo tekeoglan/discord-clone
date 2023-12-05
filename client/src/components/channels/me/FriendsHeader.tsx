@@ -44,24 +44,24 @@ export default function FriendsHeader({
             </div>
           </div>
         </div>
-        <div className="flex">
+        <div className="flex font-normal text-base text-center text-white overflow-hidden text-ellipsis ">
           <div
-            className="min-w-10 mx-2 py-px px-2 flex rounded justify-center items-center font-normal text-base text-center cursor-pointer overflow-hidden text-ellipsis shrink-0 whitespace-nowrap cursor-pointer hover:bg-neutral-400 select-none"
+            className="min-w-10 mx-2 py-px px-2 flex justify-center shrink-0 rounded items-center whitespace-nowrap cursor-pointer hover:bg-neutral-400 select-none"
             onClick={getAll}
           >
-            All
+            <span>All</span>
           </div>
           <div
-            className="min-w-10 mx-2 py-px px-2 flex rounded justify-center items-center font-normal text-base text-center cursor-pointer overflow-hidden text-ellipsis shrink-0 whitespace-nowrap cursor-pointer hover:bg-neutral-400 select-none"
+            className="min-w-10 mx-2 py-px px-2 flex rounded justify-center items-center shrink-0 whitespace-nowrap cursor-pointer hover:bg-neutral-400 select-none"
             onClick={getPending}
           >
-            Pending
+            <span>Pending</span>
           </div>
           <div
-            className="min-w-10 mx-2 py-px px-2 flex rounded justify-center items-center font-normal text-base text-center bg-green-700 cursor-pointer overflow-hidden text-ellipsis shrink-0 whitespace-nowrap cursor-pointer hover:bg-green-600 select-none"
+            className="min-w-10 mx-2 py-px px-2 flex rounded justify-center items-center bg-green-700 shrink-0 whitespace-nowrap cursor-pointer hover:bg-green-600 select-none"
             onClick={addFriend}
           >
-            Add Friend
+            <span>Add Friend</span>
           </div>
         </div>
       </div>
