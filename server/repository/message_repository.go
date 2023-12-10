@@ -68,8 +68,10 @@ func (mr *messageRepository) GetByID(c context.Context, id string) (*model.Messa
 	return &message, err
 }
 
-func (mr *messageRepository) GetChannelMessages(c context.Context, channelId string, cursorPos int) (*[]model.Message, error) {
+func (mr *messageRepository) GetChannelMessages(c context.Context, channelId string, cursorPos int) (model.MessageGetAllResult, error) {
 	collection := mr.database.Collection(mr.collection)
+
+	var result model.MessageGetAllResult
 
 	pipe := bson.A{
 		bson.M{
@@ -78,25 +80,28 @@ func (mr *messageRepository) GetChannelMessages(c context.Context, channelId str
 			},
 		},
 		bson.M{
+			"$sort": bson.M{
+				"updatedAt": -1,
+			},
+		},
+		bson.M{
 			"$skip": cursorPos,
 		},
 		bson.M{
 			"$limit": cursorPos + messageCursorLength,
 		},
-		bson.M{
-			"$set": bson.M{
-				"cursorPos": cursorPos + messageCursorLength,
-			},
-		},
 	}
 
 	cur, err := collection.Aggregate(c, pipe)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
 	var messages []model.Message
 	err = cur.All(c, &messages)
 
-	return &messages, err
+	result.Messages = messages
+	result.CursorPos = cursorPos + messageCursorLength
+
+	return result, err
 }

@@ -32,6 +32,7 @@ func (mc *MessageController) PostMessage(c *gin.Context) {
 		MessageMeta: model.MessageMeta{
 			UserID:    request.UserID,
 			ChannelID: request.ChannelID,
+			UserName:  request.UserName,
 			Text:      request.Text,
 		},
 	}
@@ -128,12 +129,12 @@ func (mc *MessageController) GetChannelMessages(c *gin.Context) {
 		return
 	}
 
-	var messages *[]model.Message
-	messages, err = mc.MessageService.GetChannelMessages(c, channelId, cursorPos)
+	var result model.MessageGetAllResult
+	result, err = mc.MessageService.GetChannelMessages(c, channelId, cursorPos)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, messages)
+	c.JSON(http.StatusOK, result)
 }

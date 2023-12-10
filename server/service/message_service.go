@@ -34,6 +34,6 @@ func (ms *messageService) GetMessage(c context.Context, id string) (*model.Messa
 	return ms.messageRepository.GetByID(c, id)
 }
 
-func (ms *messageService) GetChannelMessages(c context.Context, channelId string, cursorPos int) (*[]model.Message, error) {
+func (ms *messageService) GetChannelMessages(c context.Context, channelId string, cursorPos int) (model.MessageGetAllResult, error) {
 	return ms.messageRepository.GetChannelMessages(c, channelId, cursorPos)
 }

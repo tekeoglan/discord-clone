@@ -7,12 +7,18 @@ const CollectionMessage = "messages"
 type MessageMeta struct {
 	UserID    string `bson:"userId" form:"userId" binding:"required"`
 	ChannelID string `bson:"channelId" form:"channelId" binding:"required"`
+	UserName  string `bson:"userName" form:"userName" binding:"required"`
 	Text      string `bson:"text" form:"text" binding:"required"`
 }
 
 type Message struct {
 	BaseModel   `bson:",inline"`
 	MessageMeta `bson:",inline"`
+}
+
+type MessageGetAllResult struct {
+	Messages  []Message
+	CursorPos int
 }
 
 type DirectMessage struct {
@@ -30,7 +36,7 @@ type MessageService interface {
 	UpdateMessage(context.Context, string, string) error
 	DeleteMessage(context.Context, string) error
 	GetMessage(context.Context, string) (*Message, error)
-	GetChannelMessages(context.Context, string, int) (*[]Message, error)
+	GetChannelMessages(context.Context, string, int) (MessageGetAllResult, error)
 }
 
 type MessageRepository interface {
@@ -38,5 +44,5 @@ type MessageRepository interface {
 	UpdateMessage(context.Context, string, interface{}) error
 	DeleteMessage(context.Context, string) error
 	GetByID(context.Context, string) (*Message, error)
-	GetChannelMessages(context.Context, string, int) (*[]Message, error)
+	GetChannelMessages(context.Context, string, int) (MessageGetAllResult, error)
 }
