@@ -15,6 +15,8 @@ import (
 func NewChannelRoute(db mongo.Database, rc redis.Client, group *gin.RouterGroup) {
 	cr := repository.NewChannelRepository(db, model.CollectionChannel)
 
+	ur := repository.NewUserRepository(db, model.CollectionUser)
+
 	cacr := repository.NewCacheRepository(rc)
 
 	hub := ws.GetHub()
@@ -23,6 +25,7 @@ func NewChannelRoute(db mongo.Database, rc redis.Client, group *gin.RouterGroup)
 		ChannelService: service.NewChannelService(cr),
 		SessionService: service.NewSessionService(cacr),
 		SocketService:  service.NewSocketService(hub, cr),
+		AccountService: service.NewAccountService(ur),
 	}
 
 	group.POST("/fc", cc.CreateFc)

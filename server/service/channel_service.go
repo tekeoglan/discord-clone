@@ -52,7 +52,7 @@ func (cs *channelService) CreateFriendChannel(c context.Context, userId string, 
 	return &friendChannel, err
 }
 
-func (cs *channelService) GetFcById(c context.Context, id string) (*model.FriendChannel, error) {
+func (cs *channelService) GetFcById(c context.Context, id string) (*model.FriendChannelInfosResult, error) {
 	return cs.channelRepository.GetFcById(c, id)
 }
 

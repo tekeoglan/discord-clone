@@ -11,6 +11,7 @@ type ChannelController struct {
 	ChannelService model.ChannelService
 	SessionService model.SessionService
 	SocketService  model.SocketService
+	AccountService model.AccountService
 }
 
 func (cc *ChannelController) CreateFc(c *gin.Context) {
@@ -28,16 +29,31 @@ func (cc *ChannelController) CreateFc(c *gin.Context) {
 		return
 	}
 
-	crws := model.ChannelResponseWs{
-		Id:              fc.ChannelID,
-		CreatedAt:       fc.CreatedAt,
-		UpdatedAt:       fc.UpdatedAt,
-		HasNotification: false,
+	var user model.User
+	user, err = cc.AccountService.FetchUser(c, userId)
+	if err == nil {
+		cc.SocketService.EmitNewChannel(friendId, &model.ChannelResponseWs{
+			Id:              fc.ChannelID,
+			Name:            user.UserName,
+			CreatedAt:       fc.CreatedAt,
+			UpdatedAt:       fc.UpdatedAt,
+			HasNotification: false,
+		})
 	}
 
-	cc.SocketService.EmitNewChannel(fc.ChannelID, &crws)
+	var friend model.User
+	friend, err = cc.AccountService.FetchUser(c, friendId)
+	if err == nil {
+		cc.SocketService.EmitNewChannel(userId, &model.ChannelResponseWs{
+			Id:              fc.ChannelID,
+			Name:            friend.UserName,
+			CreatedAt:       fc.CreatedAt,
+			UpdatedAt:       fc.UpdatedAt,
+			HasNotification: false,
+		})
+	}
 
-	c.JSON(http.StatusOK, "channel has been created")
+	c.JSON(http.StatusOK, fc)
 }
 
 func (cc *ChannelController) GetFcById(c *gin.Context) {

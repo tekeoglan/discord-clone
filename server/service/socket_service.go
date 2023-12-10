@@ -72,6 +72,19 @@ func (ss *socketService) EmitNewChannel(room string, channel *model.ChannelRespo
 	ss.Hub.BroadCastToRoom(data, room)
 }
 
+func (ss *socketService) EmitNewFcChannel(room string, channel *model.ChannelResponseWs) {
+	data, err := json.Marshal(model.WebsocketMessage{
+		Action: ws.AddChannelAction,
+		Data:   channel,
+	})
+
+	if err != nil {
+		log.Printf("error marshalling response: %v\n", err)
+	}
+
+	ss.Hub.BroadCastToRoom(data, room)
+}
+
 func (ss *socketService) EmitEditChannel(room string, channel *model.ChannelResponseWs) {
 	data, err := json.Marshal(model.WebsocketMessage{
 		Action: ws.EditChannelAction,
@@ -101,15 +114,15 @@ func (ss *socketService) EmitNewDMNotification(c context.Context, channelId stri
 		log.Printf("error marshalling notification: %v\n", err)
 	}
 
-	var fc *model.FriendChannel
+	var fc *model.FriendChannelInfosResult
 	fc, err = ss.ChannelRepository.GetFcById(c, channelId)
 	if err != nil {
 		log.Printf("error getting the channel: %v\n", err)
 	}
 
-	for _, userId := range fc.Users {
-		if userId != user.ID {
-			ss.Hub.BroadCastToRoom(notification, userId.Hex())
+	for _, user := range fc.FriendInfo {
+		if user.ID != user.ID {
+			ss.Hub.BroadCastToRoom(notification, user.ID.Hex())
 		}
 	}
 }

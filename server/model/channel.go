@@ -36,6 +36,11 @@ type FriendChannelResult struct {
 	FriendInfo User `bson:"friendInfo"`
 }
 
+type FriendChannelInfosResult struct {
+	Channel    `bson:",inline"`
+	FriendInfo []User `bson:"friendInfo"`
+}
+
 type ChannelResponseWs struct {
 	Id              string    `json:"id"`
 	Name            string    `json:"name,omitempty"`
@@ -46,7 +51,7 @@ type ChannelResponseWs struct {
 
 type ChannelService interface {
 	CreateFriendChannel(context.Context, string, string) (*FriendChannel, error)
-	GetFcById(context.Context, string) (*FriendChannel, error)
+	GetFcById(context.Context, string) (*FriendChannelInfosResult, error)
 	GetFcByUserIds(context.Context, string, string) (*FriendChannel, error)
 	GetFriendChannels(context.Context, string) (*[]FriendChannelResult, error)
 	DeleteChannel(context.Context, string) error
@@ -54,7 +59,7 @@ type ChannelService interface {
 
 type ChannelRepository interface {
 	CreateChannel(context.Context, interface{}) error
-	GetFcById(context.Context, string) (*FriendChannel, error)
+	GetFcById(context.Context, string) (*FriendChannelInfosResult, error)
 	GetFcByUserIds(context.Context, string, string) (*FriendChannel, error)
 	GetFriendChannels(context.Context, string) (*[]FriendChannelResult, error)
 	DeleteChannel(context.Context, string) error

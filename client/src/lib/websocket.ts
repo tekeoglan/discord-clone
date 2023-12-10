@@ -23,6 +23,14 @@ export type WsFriendRequestResponse = {
   image: string;
 };
 
+export type WebsocketChannelResponse = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  hasNotification: boolean;
+};
+
 export const enum WebsocketAction {
   JoinUserAction = "joinUser",
   JoinChannelAction = "joinChannel",

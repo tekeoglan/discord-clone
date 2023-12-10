@@ -79,13 +79,47 @@ func (cr *channelRepository) GetFriendChannels(c context.Context, userId string)
 	return &result, err
 }
 
-func (cr *channelRepository) GetFcById(c context.Context, id string) (*model.FriendChannel, error) {
+func (cr *channelRepository) GetFcById(c context.Context, id string) (*model.FriendChannelInfosResult, error) {
 	col := cr.database.Collection(cr.collection)
 
-	var channel model.FriendChannel
-	err := col.FindOne(c, bson.M{"channelId": id}).Decode(&channel)
+	var result model.FriendChannelInfosResult
 
-	return &channel, err
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	pipe := bson.A{
+		bson.M{
+			"$match": bson.M{
+				"_id": objectId,
+			},
+		},
+		bson.M{
+			"$lookup": bson.M{
+				"from":         "users",
+				"localField":   "users",
+				"foreignField": "_id",
+				"as":           "friendInfo",
+			},
+		},
+		bson.M{
+			"$unwind": "$friendInfo",
+		},
+		bson.M{
+			"$project": bson.M{
+				"messages":            0,
+				"users":               0,
+				"friendInfo.password": 0,
+			},
+		},
+	}
+
+	cur, err := col.Aggregate(c, pipe)
+
+	err = cur.All(c, &result)
+
+	return &result, err
 }
 
 func (cr *channelRepository) GetFcByUserIds(c context.Context, user1Id string, user2Id string) (*model.FriendChannel, error) {

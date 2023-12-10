@@ -2,6 +2,8 @@
 
 import { MouseEventHandler, useState } from "react";
 import { endpoints } from "@/lib/api";
+import { ChannelEntity } from "@/lib/entities/channel";
+import { useRouter } from "next/navigation";
 
 export default function ConfirmedFriendItem({
   userName,
@@ -10,12 +12,45 @@ export default function ConfirmedFriendItem({
   userName: string;
   userId: string;
 }) {
-  const [fething, setFetching] = useState(false);
+  const [fetching, setFetching] = useState(false);
+  const router = useRouter();
 
-  const sendMessage: MouseEventHandler<HTMLDivElement> = () => {};
+  const sendMessage: MouseEventHandler<HTMLDivElement> = async () => {
+    if (fetching) return;
+    setFetching(true);
+
+    try {
+      const response = await fetch(endpoints.GetFcByUserIds(userId), {
+        mode: "cors",
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (response.ok) {
+        const channel = (await response.json()) as ChannelEntity;
+        router.push(`/channels/me/${channel.ChannelID}`);
+      } else {
+        const response = await fetch(endpoints.CreateFriendChannel(userId), {
+          method: "POST",
+          mode: "cors",
+          credentials: "include",
+          cache: "no-store",
+        });
+        if (response.ok) {
+          const channel = (await response.json()) as ChannelEntity;
+          router.push(`/channels/me/${channel.ChannelID}`);
+        } else {
+          alert("failed to create a chat");
+        }
+      }
+      setFetching(false);
+    } catch (error) {
+      console.log(error);
+      setFetching(false);
+    }
+  };
 
   const deleteFriend: MouseEventHandler<HTMLDivElement> = async () => {
-    if (fething) return;
+    if (fetching) return;
 
     setFetching(true);
     try {
