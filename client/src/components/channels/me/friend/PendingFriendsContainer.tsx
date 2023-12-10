@@ -7,75 +7,74 @@ import PendingFriendItem from "./PendingFriendItem";
 import { userStore } from "@/lib/stores/userStore";
 import {
   WebsocketAction,
-  WebsocketReadyType,
   WebsocketRequest,
   WsFriendRequestResponse,
 } from "@/lib/websocket";
-import useWebsocket from "@/hooks/useWebSocket";
+import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
+import { ReadyState } from "react-use-websocket";
 
 type WSMessage =
   | { action: WebsocketAction.RemoveFriendAction; data: string }
   | { action: WebsocketAction.AddRequestAction; data: WsFriendRequestResponse };
 
 export default function PendingFriendsContainer() {
-  const [ws, _] = useWebsocket();
   const user = userStore((state) => state.current);
   const [friends, setFriends] = useState<FriendGetAllResponse | null>(null);
   const [newFriendRequests, setNewFriendRequests] = useState<
     WsFriendRequestResponse[]
   >([]);
+  const { readyState, sendJsonMessage, lastJsonMessage } =
+    useWebSocket<WSMessage>(endpoints.WebSocket, {
+      share: true,
+    });
 
   useEffect(() => {
-    if (!(ws && user && ws.readyState == WebsocketReadyType.OPEN)) return;
+    if (!(user && readyState == ReadyState.OPEN)) return;
 
     const wsRequest: WebsocketRequest = {
       action: WebsocketAction.JoinUserAction,
       room: user.ID,
     };
 
-    ws.send(JSON.stringify(wsRequest));
-
-    ws.addEventListener("message", (e) => {
-      const response: WSMessage = JSON.parse(e.data);
-
-      switch (response.action) {
-        case WebsocketAction.AddRequestAction:
-          console.log("add_request:", response.data);
-          setNewFriendRequests((prev) => [response.data, ...prev]);
-          break;
-        case WebsocketAction.RemoveFriendAction:
-          console.log("remove_friend:", response.data);
-          setNewFriendRequests((prev) =>
-            prev.filter((item) => item.id == response.data)
-          );
-
-          setFriends((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  Friends: prev.Friends.filter(
-                    (item) => item.ID == response.data
-                  ),
-                }
-              : prev
-          );
-          break;
-        default:
-          break;
-      }
-    });
+    sendJsonMessage(wsRequest);
 
     return () => {
-      ws.send(
-        JSON.stringify({
-          action: WebsocketAction.LeaveRoomAction,
-          room: user.ID,
-        })
-      );
-
-      ws.close();
+      sendJsonMessage({
+        action: WebsocketAction.LeaveRoomAction,
+        room: user.ID,
+      });
     };
-  }, [ws, ws?.readyState]);
+  }, [user, readyState]);
+
+  useEffect(() => {
+    if (!(lastJsonMessage && Object.keys(lastJsonMessage).length > 0)) return;
+
+    switch (lastJsonMessage.action) {
+      case WebsocketAction.AddRequestAction:
+        console.log("add_request:", lastJsonMessage.data);
+        setNewFriendRequests((prev) => [lastJsonMessage.data, ...prev]);
+        break;
+      case WebsocketAction.RemoveFriendAction:
+        console.log("remove_friend:", lastJsonMessage.data);
+        setNewFriendRequests((prev) =>
+          prev.filter((item) => item.id != lastJsonMessage.data)
+        );
+
+        setFriends((prev) =>
+          prev
+            ? {
+                ...prev,
+                Friends: prev.Friends.filter(
+                  (item) => item.ID != lastJsonMessage.data
+                ),
+              }
+            : prev
+        );
+        break;
+      default:
+        break;
+    }
+  }, [lastJsonMessage]);
 
   useEffect(() => {
     (async function () {
