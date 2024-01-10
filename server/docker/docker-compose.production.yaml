@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.production
+      target: production
+    image: discord-server
+    container_name: discord-server
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - ENV=production
+    depends_on:
+      - mongodb
+      - redis_cache
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+  redis_cache:
+    image: redis:6.2-alpine
+    hostname: redis
+    container_name: redis_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"

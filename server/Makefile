@@ -3,7 +3,7 @@ $(eval $(GENERIC):;@:)
 
 file = docker/docker-compose.dev.yaml
 ifeq (${CONTEXT}, production)
-		file = docker/docker-compose.yaml
+		file = docker/docker-compose.production.yaml
 endif
 
 project = discord-clone
@@ -27,6 +27,8 @@ debug:
 		export BUILD_TARGET=debug && make run
 dev:
 		export BUILD_TARGET=dev && make run
+prod:
+		export CONTEXT=production && make build && make up
 stop:
 		$(cc) stop $(GENERIC)
 console:

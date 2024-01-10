@@ -26,7 +26,7 @@ type Env struct {
 func NewEnv() *Env {
 	file := "dev.env"
 	if os.Getenv("ENV") == "production" {
-		file = ".env"
+		file = "production.env"
 	}
 
 	env := Env{}
@@ -45,6 +45,8 @@ func NewEnv() *Env {
 
 	if env.AppEnv == "development" {
 		log.Println("The app is running in development mode")
+	} else {
+		log.Println("The app is running in production mode")
 	}
 
 	return &env

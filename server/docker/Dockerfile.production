@@ -11,27 +11,21 @@ RUN apk update && apk upgrade && \
 
 WORKDIR /app
 COPY ../go.* .
+
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod download
 
-FROM base AS debug
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+FROM base AS build
+COPY ../conf/production.env /etc/discord-clone/
 
 RUN --mount=type=bind,source=..,target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 go build -gcflags="all=-N -l" -o /bin/discord-clone ./cmd
 
-COPY ../conf/dev.env /etc/discord-clone/
-
-COPY ../scripts/dlv.sh .
-RUN chmod +x ./dlv.sh
-ENTRYPOINT ["./dlv.sh"]
-
-FROM alpine:latest as dev
-COPY --from=debug /etc/discord-clone /etc/discord-clone
-COPY --from=debug /bin/discord-clone /bin/
+FROM alpine:latest as production
+COPY --from=build /etc/discord-clone /etc/discord-clone
+COPY --from=build /bin/discord-clone /bin/
+ENV ENV=production
 EXPOSE 8080
 ENTRYPOINT ["/bin/discord-clone"]

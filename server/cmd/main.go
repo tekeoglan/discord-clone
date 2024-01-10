@@ -21,9 +21,15 @@ func main() {
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 
-	gin := gin.Default()
+	if env.AppEnv == "development" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	route.Setup(env, timeout, db, cache, gin)
+	ginEngine := gin.Default()
 
-	gin.Run(env.ServerAddress)
+	route.Setup(env, timeout, db, cache, ginEngine)
+
+	ginEngine.Run(env.ServerAddress)
 }
